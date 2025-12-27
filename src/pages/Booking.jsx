@@ -61,7 +61,7 @@ export default function Booking() {
       localStorage.getItem("currentUser") || "null"
     );
     if (!currentUser) {
-      navigate("/signin", { state: { from: `/book/${serviceId}` } });
+      navigate("/", { state: { from: `/book/${serviceId}` } });
     }
   }, []);
 

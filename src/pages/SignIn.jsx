@@ -1,174 +1,219 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ArrowLeft, Wrench, ShieldCheck } from "lucide-react";
 import { useState } from "react";
-import { useEffect } from "react";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+
+const API_BASE = "https://dev.backend.fixonn.in/api/v1";
 
 export default function SignIn() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const DEMO = {
-    name: "Demo User",
-    email: "demo@homeserve.test",
-    password: "Demo1234",
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState({
+    mobile: "",
+    password: "",
+  });
+
+  const isHomePage = location.pathname === "/"; // or pathname === '/'
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Mobile number validation (digits only, max 10)
+    if (name === "mobile") {
+      if (!/^\d*$/.test(value)) return;
+      if (value.length > 10) return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  useEffect(() => {
-    // ensure demo user exists for quick testing
-    try {
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      const has = users.find((u) => u.email === DEMO.email);
-      if (!has) {
-        users.push(DEMO);
-        localStorage.setItem("users", JSON.stringify(users));
-      }
-    } catch (e) {
-      localStorage.setItem("users", JSON.stringify([DEMO]));
+  const validateForm = () => {
+    if (!form.mobile) {
+      toast.error("Please enter mobile number");
+      return false;
     }
-    // prefill email to demo for convenience
-    setForm((s) => ({ ...s, email: DEMO.email }));
-  }, []);
+    if (form.mobile.length !== 10) {
+      toast.error("Mobile number must be exactly 10 digits");
+      return false;
+    }
+    if (!form.password) {
+      toast.error("Please enter your password");
+      return false;
+    }
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return false;
+    }
+    return true;
+  };
 
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
-  }
-
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
-    const u = users.find(
-      (x) => x.email === form.email && x.password === form.password
-    );
-    if (!u) return setError("Invalid email or password");
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify({ email: u.email, name: u.name })
-    );
-    const dest = location.state?.from || "/";
-    navigate(dest);
-  }
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post(`${API_BASE}/auth/login`, {
+        mobile: form.mobile,
+        password: form.password,
+      });
+
+      toast.success("Login successful");
+
+      // Optional: store token/user
+      // localStorage.setItem("token", res.data.token);
+
+      navigate("/home");
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message || "Invalid mobile number or password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-sky-50 via-white to-indigo-50 overflow-hidden">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-        className="absolute inset-0 pointer-events-none"
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <Toaster position="top-center" />
+
+      {/* Header */}
+      {/* <header className="flex items-center justify-between px-4 h-10">
+        <Link
+          to="/"
+          className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow"
+        >
+          <ArrowLeft size={16} /> Back
+        </Link>
+
+        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+          <ShieldCheck className="w-4 h-4 text-emerald-500" />
+          Secure login
+        </div>
+      </header> */}
+
+      {/* Main */}
+      <main
+        className="
+    flex-1
+    px-4
+    py-6
+    flex
+    justify-center
+    items-start
+    sm:items-center
+        max-[768px]:items-center  /* mobile & small tablet: center vertically */
+
+  "
       >
         <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.02 }}
-          transition={{ duration: 8, repeat: Infinity, yoyo: true }}
-          className="absolute -left-24 -top-24 w-72 h-72 rounded-full bg-gradient-to-br from-sky-400 to-indigo-500 filter blur-3xl opacity-30"
-        />
-        <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.01 }}
-          transition={{ duration: 10, repeat: Infinity, yoyo: true }}
-          className="absolute -right-24 top-32 w-72 h-72 rounded-full bg-gradient-to-br from-rose-400 to-orange-400 filter blur-3xl opacity-24"
-        />
-      </motion.div>
-
-      <div className="max-w-4xl mx-auto px-4 py-20">
-        <motion.div
-          initial={{ y: 12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7 }}
-          className="bg-white/90 backdrop-blur rounded-3xl shadow-2xl overflow-hidden border border-slate-100"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md bg-white rounded-2xl shadow-xl border px-6 py-6"
         >
-          <div className="grid md:grid-cols-2">
-            <div className="p-10 bg-gradient-to-b from-white to-sky-50">
-              <h1 className="text-3xl font-extrabold text-slate-900">
-                Welcome back
-              </h1>
-              <p className="mt-3 text-slate-600">
-                Sign in to manage bookings, apply offers and save addresses for
-                faster checkout.
-              </p>
-
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className="mt-8 p-4 rounded-xl bg-sky-50 border border-sky-100"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-slate-700">Demo account</div>
-                    <div className="font-mono text-xs">
-                      {DEMO.email} / {DEMO.password}
-                    </div>
-                  </div>
-                  <div>
-                    <button
-                      onClick={() => setForm(DEMO)}
-                      className="px-3 py-1 bg-sky-600 text-white rounded-2xl text-sm"
-                    >
-                      Use demo
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-
-              <div className="mt-6 text-sm text-slate-500">
-                Not a member?{" "}
-                <Link to="/signup" className="text-sky-600 font-semibold">
-                  Create account
-                </Link>
+          {/* Header row */}
+          <header className="flex items-center justify-between px-0 h-10 mb-4">
+            {!isHomePage ? (
+              <Link className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow">
+                <ArrowLeft size={16} /> Back
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2 px-3 py-1.5 invisible">
+                <ArrowLeft size={16} /> Back
               </div>
+            )}
+
+            <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+              Secure login
             </div>
-
-            <div className="p-10">
-              <motion.form
-                onSubmit={handleSubmit}
-                initial={{ y: 16, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="sr-only">Email address</label>
-                  <input
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    type="email"
-                    placeholder="Email address"
-                    required
-                    className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
-
-                <div>
-                  <label className="sr-only">Password</label>
-                  <input
-                    name="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    type="password"
-                    placeholder="Password"
-                    required
-                    className="w-full px-4 py-3 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-rose-600 text-center">{error}</div>
-                )}
-
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-sky-600 to-blue-700 text-white py-3 rounded-2xl text-lg font-bold shadow-lg hover:shadow-2xl transform hover:-translate-y-0.5 transition-all"
-                >
-                  Sign in
-                </button>
-              </motion.form>
+          </header>
+          <div className="text-center mb-6">
+            <div className="w-12 h-12 mx-auto rounded-2xl bg-orange-100 flex items-center justify-center mb-3">
+              <Wrench className="w-6 h-6 text-orange-600" />
             </div>
+            <h1 className="text-xl font-semibold text-slate-900">
+              Sign in to Fixonn
+            </h1>
+            <p className="text-xs text-slate-500 mt-1">
+              Login using your mobile number
+            </p>
           </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Field label="Mobile Number">
+              <Input
+                name="mobile"
+                value={form.mobile}
+                onChange={handleChange}
+                placeholder="10 digit mobile number"
+                leftIcon={<span className="text-xs text-slate-400">+91</span>}
+              />
+            </Field>
+
+            <Field label="Password">
+              <Input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+              />
+            </Field>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-2xl bg-orange-600 hover:bg-orange-700 text-white py-3 text-sm font-semibold transition disabled:opacity-60"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+
+            <p className="text-center text-xs text-slate-500 pt-3">
+              Don’t have an account?{" "}
+              <Link
+                to="/signup"
+                className="font-semibold text-orange-600 hover:text-orange-700"
+              >
+                Create account
+              </Link>
+            </p>
+          </form>
         </motion.div>
-      </div>
+      </main>
+    </div>
+  );
+}
+
+/* ---------- UI helpers ---------- */
+
+function Field({ label, children }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-sm font-medium text-slate-700">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function Input({ leftIcon, ...props }) {
+  return (
+    <div className="relative">
+      {leftIcon && (
+        <span className="absolute left-3 inset-y-0 flex items-center">
+          {leftIcon}
+        </span>
+      )}
+      <input
+        {...props}
+        className={`w-full rounded-2xl border border-slate-200 bg-slate-50 text-sm py-2.5 px-3 focus:ring-2 focus:ring-orange-500/50 outline-none ${
+          leftIcon ? "pl-10" : ""
+        }`}
+      />
     </div>
   );
 }

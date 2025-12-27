@@ -1,8 +1,48 @@
 /* src/index.css */
 @import "tailwindcss";
 
+html,
+body {
+  height: 100%;
+  /* overflow: hidden; */
+  overflow-x: hidden; /* important: no horizontal scroll on page */
+}
+
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}
+
+/* Make scrollbar thin and subtle on all pages */
+/* * {
+  scrollbar-width: thin; 
+  scrollbar-color: #f9f9f9 transparent;
+} */
+
+/* Chrome / Edge / Safari */
+*::-webkit-scrollbar {
+  width: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5f5;
+  border-radius: 9999px;
+}
+
+@layer utilities {
+  /* Hide scrollbar but keep scroll */
+
+  /* Chrome, Safari, Edge, Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox, old Edge */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
   }
 }

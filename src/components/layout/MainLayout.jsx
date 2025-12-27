@@ -15,8 +15,8 @@ export function MainLayout() {
 
   const NAV_ITEMS = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "Offers", href: "/offers" },
+    { name: "Orders", href: "/orders" },
+    { name: "History", href: "/history" },
   ];
 
   const [bookingCount, setBookingCount] = useState(0);
@@ -90,8 +90,6 @@ export function MainLayout() {
     };
   }, []);
 
-  // readProfileImage(currentUser);
-
   // close user menu when clicking outside
   useEffect(() => {
     function onDoc(e) {
@@ -155,10 +153,15 @@ export function MainLayout() {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => (document.body.style.overflow = "");
+  }, [mobileOpen]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200/60">
+      <header className="bg-white/95 backdrop-blur-md fixed top-0 left-0 right-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-6">
@@ -196,27 +199,6 @@ export function MainLayout() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* <Link
-                to="/my-bookings"
-                className="hidden md:inline-flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100"
-              >
-                <div className="relative">
-                  <CalendarDays className="w-5 h-5 text-slate-700" />
-                  <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {bookingCount}
-                  </span>
-                </div>
-                <span className="text-sm text-slate-700">My Bookings</span>
-              </Link> */}
-
-              <Link
-                to="/services"
-                className="hidden md:inline-flex items-center space-x-2 bg-gradient-to-r from-sky-600 to-blue-700 text-white px-4 py-2 rounded-2xl text-sm font-semibold hover:shadow-lg transition-all duration-200"
-              >
-                <Phone className="w-4 h-4" />
-                <span>Book Now</span>
-              </Link>
-
               <div className="relative" ref={userMenuRef}>
                 {currentUser ? (
                   <button
@@ -251,7 +233,7 @@ export function MainLayout() {
                 ) : (
                   <div className="hidden md:flex items-center gap-3">
                     <Link
-                      to="/signin"
+                      to="/"
                       className="text-sm text-slate-700 hover:text-sky-600"
                     >
                       Sign in
@@ -274,19 +256,6 @@ export function MainLayout() {
                       <User className="w-4 h-4" />
                       Account
                     </Link>
-                    <Link
-                      to="/my-bookings"
-                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 hover:bg-sky-50"
-                    >
-                      <CalendarDays className="w-4 h-4" />
-                      My Bookings
-                    </Link>
-                    {/* <Link
-                      to="/offers"
-                      className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-700 hover:bg-sky-50"
-                    >
-                      Offers
-                    </Link> */}
                     <button
                       onClick={signOut}
                       className="w-full text-left px-3 py-2 rounded-md text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2"
@@ -324,13 +293,7 @@ export function MainLayout() {
                     {item.name}
                   </Link>
                 ))}
-                <Link
-                  to="/my-bookings"
-                  className="text-lg font-semibold text-slate-900 hover:text-sky-600 py-2 px-3 rounded-xl hover:bg-sky-50 transition-all"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  My Bookings
-                </Link>
+
                 {currentUser ? (
                   <>
                     <Link
@@ -353,7 +316,7 @@ export function MainLayout() {
                 ) : (
                   <div className="flex gap-3">
                     <Link
-                      to="/signin"
+                      to="/"
                       onClick={() => setMobileOpen(false)}
                       className="text-lg font-semibold text-slate-900"
                     >
@@ -375,12 +338,12 @@ export function MainLayout() {
       </header>
 
       <LoadingContext.Provider value={{ loading }}>
-        <main className="flex-1">
+        <main className="flex-1 pt-16">
           <Outlet />
         </main>
       </LoadingContext.Provider>
 
-      <Loader loading={loading} />
+      {/* <Loader loading={loading} /> */}
 
       <Footer />
     </div>

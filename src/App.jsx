@@ -11,6 +11,10 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import MyBookings from "./pages/MyBookings";
 import Offers from "./pages/Offers";
 import Account from "./pages/Account";
+import Orders from "./pages/Orders";
+import OrderDetails from "./pages/OrdersDetails";
+import HistoryDetails from "./pages/HistoryDetails";
+import History from "./pages/History";
 
 export default function App() {
   return (
@@ -18,19 +22,23 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
           <Route path="/offers" element={<Offers />} />
           <Route path="/account" element={<Account />} />
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/book/:serviceId" element={<Booking />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders/:id" element={<OrderDetails />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/history/:id" element={<HistoryDetails />} />
           <Route
             path="/booking-confirmation/:bookingId"
             element={<BookingConfirmation />}
           />
         </Route>
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>
     </BrowserRouter>
