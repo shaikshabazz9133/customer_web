@@ -14,7 +14,7 @@ export function MainLayout() {
   const [profileImage, setProfileImage] = useState(null);
 
   const NAV_ITEMS = [
-    { name: "Home", href: "/" },
+    { name: "Home", href: "/home" },
     { name: "Orders", href: "/orders" },
     { name: "History", href: "/history" },
   ];
