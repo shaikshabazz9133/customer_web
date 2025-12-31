@@ -1,34 +1,38 @@
+import { useEffect, useState } from "react";
+
 export function OfferCard({ offer }) {
+  const images = offer.banner_image || [];
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 2500);
+
+    return () => clearInterval(timer);
+  }, [images.length]);
+
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 shadow-md hover:shadow-xl transition overflow-hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 items-center p-6 sm:p-8">
-        {/* LEFT */}
-        <div>
-          <h3 className="text-lg md:text-xl font-bold text-gray-900">
-            {offer.title}{" "}
-            <span className="text-red-600">{offer.highlight}</span>
-          </h3>
+    <div className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition bg-white">
+      {/* IMAGE */}
+      <div className="relative w-full h-[260px]">
+        <img
+          src={images[index] || "/placeholder.png"}
+          alt={offer.service_name}
+          className="w-full h-full object-cover transition-all duration-700"
+        />
 
-          <p className="text-gray-600 text-sm mt-2">{offer.subtitle}</p>
+        {/* GRADIENT OVERLAY */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-          {/* <button className="mt-5 bg-red-600 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-red-700 transition">
-            Book Now
-          </button> */}
+        {/* SERVICE NAME */}
+        <div className="absolute bottom-3 left-4 right-4">
+          <p className="text-white text-base font-semibold truncate">
+            {offer.service_name}
+          </p>
         </div>
-
-        {/* RIGHT */}
-        <div className="relative flex justify-center mt-6 sm:mt-0">
-          <div className="absolute bottom-1 w-36 h-8 bg-orange-400 rounded-full blur-md opacity-70" />
-          <img
-            src={offer.image}
-            alt={offer.title}
-            className="relative z-10 h-40 object-contain"
-          />
-        </div>
-      </div>
-
-      <div className="px-6 pb-4 text-sm font-medium text-gray-800">
-        {offer.category}
       </div>
     </div>
   );

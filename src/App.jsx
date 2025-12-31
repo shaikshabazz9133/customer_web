@@ -15,6 +15,10 @@ import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrdersDetails";
 import HistoryDetails from "./pages/HistoryDetails";
 import History from "./pages/History";
+import MachineTypes from "./components/services/MachineTypes";
+import ServiceTypeDetails from "./components/services/ServiceTypeDetails";
+import ScheduleBooking from "./components/services/ScheduleBooking";
+import ConfirmBooking from "./components/services/ConfirmBooking";
 
 export default function App() {
   return (
@@ -37,6 +41,16 @@ export default function App() {
             path="/booking-confirmation/:bookingId"
             element={<BookingConfirmation />}
           />
+          <Route
+            path="/services/:serviceId/machine-types"
+            element={<MachineTypes />}
+          />
+          <Route
+            path="/service-type/:serviceId/:machineTypeId"
+            element={<ServiceTypeDetails />}
+          />
+          <Route path="/schedule" element={<ScheduleBooking />} />
+          <Route path="/confirm-booking" element={<ConfirmBooking />} />
         </Route>
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />

@@ -4,8 +4,8 @@ import { ArrowLeft, Wrench, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { API_BASE_URL } from "../api/api";
 
-const API_BASE = "https://dev.backend.fixonn.in/api/v1";
 
 export default function SignIn() {
   const navigate = useNavigate();
@@ -57,10 +57,17 @@ export default function SignIn() {
     try {
       setLoading(true);
 
-      const res = await axios.post(`${API_BASE}/auth/login`, {
+      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
         mobile: form.mobile,
         password: form.password,
       });
+
+      const token = res.data.data?.access_token;
+
+      if (token) {
+        // ✅ Store token in sessionStorage
+        sessionStorage.setItem("token", token);
+      }
 
       toast.success("Login successful");
 
@@ -80,22 +87,6 @@ export default function SignIn() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       <Toaster position="top-center" />
-
-      {/* Header */}
-      {/* <header className="flex items-center justify-between px-4 h-10">
-        <Link
-          to="/"
-          className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow"
-        >
-          <ArrowLeft size={16} /> Back
-        </Link>
-
-        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          Secure login
-        </div>
-      </header> */}
-
       {/* Main */}
       <main
         className="

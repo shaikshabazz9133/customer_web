@@ -4,8 +4,7 @@ import { ArrowLeft, Wrench, Home, ShieldCheck, Clock } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
-
-const API_BASE = "https://dev.backend.fixonn.in/api/v1";
+import { API_BASE_URL } from "../api/api";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -73,7 +72,7 @@ export default function SignUp() {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.post(`${API_BASE}/auth/create-customer`, {
+      const res = await axios.post(`${API_BASE_URL}/auth/create-customer`, {
         username: form.name,
         mobile: form.phone,
         email: form.email,
@@ -82,7 +81,7 @@ export default function SignUp() {
 
       if (res.data?.verification_required) {
         toast("Mobile number not verified. Sending OTP…");
-        const otpRes = await axios.post(`${API_BASE}/auth/sendotp`, {
+        const otpRes = await axios.post(`${API_BASE_URL}/auth/sendotp`, {
           mobile: form.phone,
         });
         setVerificationId(otpRes.data.verification_id);
@@ -110,7 +109,7 @@ export default function SignUp() {
     try {
       setLoading(true);
       setError("");
-      await axios.post(`${API_BASE}/auth/verifyotp`, {
+      await axios.post(`${API_BASE_URL}/auth/verifyotp`, {
         code: otp,
         verification_id: verificationId,
       });
