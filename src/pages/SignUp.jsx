@@ -142,7 +142,7 @@ export default function SignUp() {
       {/* Top bar */}
       <header className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 h-10">
         <Link
-          to="/"
+          to="/signin"
           className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 shadow-sm border border-slate-200 hover:shadow-md hover:bg-slate-50 transition"
         >
           <ArrowLeft size={16} />

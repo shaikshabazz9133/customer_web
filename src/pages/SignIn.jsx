@@ -74,7 +74,7 @@ export default function SignIn() {
       // Optional: store token/user
       // localStorage.setItem("token", res.data.token);
 
-      navigate("/home");
+      navigate("/");
     } catch (err) {
       toast.error(
         err?.response?.data?.message || "Invalid mobile number or password"
@@ -109,7 +109,7 @@ export default function SignIn() {
           {/* Header row */}
           <header className="flex items-center justify-between px-0 h-10 mb-4">
             {!isHomePage ? (
-              <Link className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow">
+              <Link to="/" className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow">
                 <ArrowLeft size={16} /> Back
               </Link>
             ) : (

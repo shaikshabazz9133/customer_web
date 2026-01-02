@@ -19,6 +19,7 @@ import MachineTypes from "./components/services/MachineTypes";
 import ServiceTypeDetails from "./components/services/ServiceTypeDetails";
 import ScheduleBooking from "./components/services/ScheduleBooking";
 import ConfirmBooking from "./components/services/ConfirmBooking";
+import BookingFlow from "./components/services/BookingFlow";
 
 export default function App() {
   return (
@@ -26,7 +27,7 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         <Route element={<MainLayout />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
           <Route path="/offers" element={<Offers />} />
@@ -51,8 +52,9 @@ export default function App() {
           />
           <Route path="/schedule" element={<ScheduleBooking />} />
           <Route path="/confirm-booking" element={<ConfirmBooking />} />
+          <Route path="/booking-flow" element={<BookingFlow />} />
         </Route>
-        <Route path="/" element={<SignIn />} />
+        <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>
     </BrowserRouter>

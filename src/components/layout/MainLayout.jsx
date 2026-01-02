@@ -16,7 +16,7 @@ export function MainLayout() {
   const navigate = useNavigate();
 
   const NAV_ITEMS = [
-    { name: "Home", href: "/home" },
+    { name: "Home", href: "/" },
     { name: "Orders", href: "/orders" },
     { name: "History", href: "/history" },
   ];
@@ -54,14 +54,7 @@ export function MainLayout() {
     navigate("/");
   }
 
-  // show a brief loader on every navigation to indicate page change
   const [loading, setLoading] = useState(false);
-  // const locKey = location.pathname + location.search;
-  // useEffect(() => {
-  //   setLoading(true);
-  //   const t = setTimeout(() => setLoading(false), 600);
-  //   return () => clearTimeout(t);
-  // }, [locKey]);
 
   useEffect(() => {
     setLoading(true);
@@ -92,7 +85,6 @@ export function MainLayout() {
     return () => (document.body.style.overflow = "");
   }, [mobileOpen]);
 
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
       {/* Header */}
@@ -102,7 +94,7 @@ export function MainLayout() {
             <div className="flex items-center gap-6">
               <Link to="/" className="flex items-center gap-3">
                 <img
-                  src="/fixonn.png"
+                  src="/Fixon.png"
                   alt="fixon"
                   className="w-10 h-10 rounded-lg object-cover shadow"
                 />
@@ -125,8 +117,8 @@ export function MainLayout() {
                     to={item.href}
                     className={`text-sm font-medium px-3 py-2 rounded-md transition ${
                       location.pathname === item.href
-                        ? "bg-sky-50 text-sky-600"
-                        : "text-slate-700 hover:bg-sky-50 hover:text-sky-600"
+                        ? "bg-[#c62828]/10 text-[#c62828]"
+                        : "text-slate-700 hover:bg-[#c62828]/10 hover:text-[#c62828]"
                     }`}
                   >
                     {item.name}
@@ -143,7 +135,7 @@ export function MainLayout() {
                       onClick={() => setUserMenuOpen((s) => !s)}
                       className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-slate-100 transition"
                     >
-                      <div className="w-10 h-10 rounded-full bg-sky-600 overflow-hidden flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-[#c62828] overflow-hidden flex items-center justify-center">
                         {profileImage ? (
                           <img
                             src={displayProfileImage}
@@ -173,7 +165,7 @@ export function MainLayout() {
                         }}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition text-left"
                       >
-                        <div className="w-9 h-9 rounded-full bg-sky-600 overflow-hidden flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-full bg-[#c62828] overflow-hidden flex items-center justify-center">
                           {profileImage ? (
                             <img
                               src={profileImage}
@@ -202,7 +194,9 @@ export function MainLayout() {
                       {/* Sign out */}
                       <button
                         onClick={signOut}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-rose-600 hover:bg-rose-50 transition"
+                        className="w-full flex items-center gap-3 px-4 py-3
+text-sm font-medium text-[#c62828]
+hover:bg-[#c62828]/10 transition"
                       >
                         <LogOut className="w-4 h-4" />
                         Sign out
@@ -213,7 +207,9 @@ export function MainLayout() {
               ) : (
                 <button
                   onClick={() => navigate("/signin")}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-sky-600 border border-sky-600 hover:bg-sky-50 transition"
+                  className="px-4 py-2 rounded-lg text-sm font-semibold
+  text-[#c62828] border border-[#c62828]
+  hover:bg-[#c62828]/10 transition"
                 >
                   Sign in
                 </button>
@@ -273,8 +269,9 @@ export function MainLayout() {
                       setMobileOpen(false);
                     }}
                     className="mt-4 w-full px-4 py-3 rounded-xl
-                 text-base font-semibold text-sky-600
-                 border border-sky-600 hover:bg-sky-50"
+  text-base font-semibold text-[#c62828]
+  border border-[#c62828]
+  hover:bg-[#c62828]/10"
                   >
                     Sign in
                   </button>

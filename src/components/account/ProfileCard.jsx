@@ -130,18 +130,18 @@ export default function ProfileCard() {
           {/* LEFT – PROFILE IMAGE */}
           <div className="flex flex-col items-center">
             <div className="relative">
-              <div className="w-36 h-36 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 p-1">
-                <div className="w-full h-full rounded-full bg-white overflow-hidden flex items-center justify-center">
+              <div className="w-36 h-36 rounded-full bg-gradient-to-br from-[#C62828] via-[#D32F2F] to-[#B71C1C] p-1 shadow-2xl hover:shadow-[#C62828]/40 hover:scale-[1.02] transition-all duration-300">
+                <div className="w-full h-full rounded-full bg-white/95 backdrop-blur-sm overflow-hidden flex items-center justify-center shadow-lg border-4 border-white/80">
                   <img
                     src={displayProfileImage}
                     alt="Profile"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-full"
                   />
                 </div>
               </div>
 
               {/* CAMERA BUTTON */}
-              <label className="absolute bottom-1 right-1 bg-sky-600 text-white p-2 rounded-full cursor-pointer shadow hover:scale-105 transition">
+              <label className="absolute bottom-1 right-1 bg-[#C62828] text-white p-2 rounded-full cursor-pointer shadow hover:scale-105 transition">
                 <Camera size={16} />
                 <input
                   type="file"
@@ -214,12 +214,12 @@ export default function ProfileCard() {
             whileTap={!saving ? { scale: 0.97 } : {}}
             onClick={handleSave}
             disabled={saving}
-            className={`px-8 py-3 rounded-full font-semibold text-white transition flex items-center gap-2 ${
+            className={`px-8 py-3 rounded-full font-semibold text-white shadow-lg hover:shadow-xl transition-all flex items-center gap-2 backdrop-blur-sm ${
               saving
-                ? "bg-gray-400 cursor-not-allowed"
+                ? "bg-slate-400/80 cursor-not-allowed"
                 : saved
-                ? "bg-indigo-600 hover:bg-indigo-700"
-                : "bg-sky-600 hover:bg-sky-700"
+                ? "bg-[#C62828] hover:bg-[#B71C1C] shadow-[#C62828]/30 hover:shadow-[#C62828]/40"
+                : "bg-gradient-to-r from-[#C62828] to-[#D32F2F] hover:from-[#B71C1C] hover:shadow-[#C62828]/50"
             }`}
           >
             {saving ? (
@@ -228,7 +228,7 @@ export default function ProfileCard() {
                 Updating...
               </>
             ) : saved ? (
-              "Update Profile"
+              "✅ Updated"
             ) : (
               "Save Profile"
             )}
@@ -244,18 +244,20 @@ export default function ProfileCard() {
 function Input({ icon, label, className = "", ...props }) {
   return (
     <div className={className}>
-      <label className="text-xs font-semibold text-slate-600">{label}</label>
-      <div className="relative mt-1">
+      <label className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
+        {label}
+      </label>
+      <div className="relative mt-1.5">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
             {icon}
           </div>
         )}
         <input
           {...props}
-          className={`w-full px-4 py-3 rounded-2xl border focus:ring-2 focus:ring-sky-500 outline-none ${
-            icon ? "pl-10" : ""
-          }`}
+          className={`w-full px-4 py-3.5 lg:py-3   rounded-2xl border-2 border-slate-200 focus:ring-3 focus:ring-[#C62828]/30 focus:border-[#C62828] bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md hover:border-[#C62828]/40 transition-all duration-300 outline-none ${
+            icon ? "pl-12" : "px-4"
+          } text-sm lg:text-base font-medium placeholder-slate-400`}
         />
       </div>
     </div>
@@ -265,15 +267,17 @@ function Input({ icon, label, className = "", ...props }) {
 function Textarea({ icon, label, className = "", ...props }) {
   return (
     <div className={className}>
-      <label className="text-xs font-semibold text-slate-600">{label}</label>
-      <div className="relative mt-1">
+      <label className="text-xs font-semibold text-slate-700 tracking-wide uppercase mb-1.5">
+        {label}
+      </label>
+      <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-3 text-slate-400">{icon}</div>
+          <div className="absolute left-3.5 top-3.5 text-slate-400">{icon}</div>
         )}
         <textarea
           {...props}
           rows={3}
-          className="w-full px-4 py-3 pl-10 rounded-2xl border focus:ring-2 focus:ring-sky-500 outline-none"
+          className="w-full px-4 py-3.5 pl-11 lg:pl-12 rounded-2xl border-2 border-slate-200 focus:ring-3 focus:ring-[#C62828]/30 focus:border-[#C62828] bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md hover:border-[#C62828]/40 transition-all duration-300 outline-none resize-vertical text-sm lg:text-base font-medium placeholder-slate-400"
         />
       </div>
     </div>

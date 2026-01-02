@@ -40,7 +40,7 @@ export default function MachineTypes() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#c62828]">
             Select Appliance Type
           </h1>
         </motion.div>
