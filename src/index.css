@@ -75,3 +75,12 @@ body {
   background-size: 300% 300%;
   animation: shimmer-diagonal 2.8s linear infinite;
 }
+
+@keyframes shimmer-rtl {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
