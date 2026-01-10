@@ -20,6 +20,7 @@ import ServiceTypeDetails from "./components/services/ServiceTypeDetails";
 import ScheduleBooking from "./components/services/ScheduleBooking";
 import ConfirmBooking from "./components/services/ConfirmBooking";
 import BookingFlow from "./components/services/BookingFlow";
+import OrderDetailsStatus from "./components/orders/OrderDetailsStatus";
 
 export default function App() {
   return (
@@ -36,12 +37,13 @@ export default function App() {
           <Route path="/book/:serviceId" element={<Booking />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders/:id" element={<OrderDetails />} />
+          <Route path="/history/orders/:id" element={<OrderDetailsStatus />} />
           <Route path="/history" element={<History />} />
           <Route path="/history/:id" element={<HistoryDetails />} />
-          <Route
+          {/* <Route
             path="/booking-confirmation/:bookingId"
             element={<BookingConfirmation />}
-          />
+          /> */}
           <Route
             path="/services/:serviceId/machine-types"
             element={<MachineTypes />}

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Wrench, ShieldCheck } from "lucide-react";
 import { useState } from "react";
@@ -6,9 +6,9 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { API_BASE_URL } from "../api/api";
 
-
 export default function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -17,6 +17,10 @@ export default function SignIn() {
   });
 
   const isHomePage = location.pathname === "/"; // or pathname === '/'
+
+  // where to go after login
+  const redirectTo = location.state?.redirectTo || "/";
+  const bookingState = location.state?.bookingState;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +78,10 @@ export default function SignIn() {
       // Optional: store token/user
       // localStorage.setItem("token", res.data.token);
 
-      navigate("/");
+      navigate(redirectTo, {
+        state: bookingState,
+        replace: true,
+      });
     } catch (err) {
       toast.error(
         err?.response?.data?.message || "Invalid mobile number or password"
@@ -109,7 +116,10 @@ export default function SignIn() {
           {/* Header row */}
           <header className="flex items-center justify-between px-0 h-10 mb-4">
             {!isHomePage ? (
-              <Link to="/" className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow">
+              <Link
+                to="/"
+                className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm border shadow"
+              >
                 <ArrowLeft size={16} /> Back
               </Link>
             ) : (
