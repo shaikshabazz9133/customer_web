@@ -1,4 +1,3 @@
-
 import HeroSearch from "../components/home/HeroSearch";
 import ServicesGrid from "../components/home/ServicesGrid";
 import OffersSection from "../components/home/OffersSection";
@@ -11,6 +10,7 @@ import { fetchServices } from "../api/servicesApi";
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchServices()
@@ -28,8 +28,11 @@ export default function Home() {
         </>
       ) : (
         <>
-          <HeroSearch />
-          <ServicesGrid />
+          <HeroSearch
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+          <ServicesGrid searchQuery={searchQuery} />
           <OffersSection />
         </>
       )}

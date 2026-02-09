@@ -4,10 +4,18 @@ import { useEffect, useState } from "react";
 import ServicesGridSkeleton from "../skeletons/ServicesGridSkeleton";
 import { useNavigate } from "react-router-dom";
 
-export default function ServicesShowcase() {
+export default function ServicesShowcase({ searchQuery = "" }) {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  const filteredServices = searchQuery
+    ? services.filter((s) =>
+        (s.service_name || "")
+          .toLowerCase()
+          .includes(searchQuery.trim().toLowerCase()),
+      )
+    : services;
 
   useEffect(() => {
     setLoading(true);
@@ -29,54 +37,61 @@ export default function ServicesShowcase() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="mb-10 text-center"
-            
           >
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Select Service
-            </h2>
+              Select Service 
+            </h2> 
             <p className="text-gray-500 mt-2">Choose the service you need</p>
           </motion.div>
 
           {/* Grid / Slider */}
-          <div
-            className="
-              flex gap-5 overflow-x-auto pb-4
-              snap-x snap-mandatory
-              scrollbar-hide
-              lg:grid lg:grid-cols-4 xl:grid-cols-6 lg:overflow-visible
+          {filteredServices.length === 0 ? (
+            <div className="py-12 text-center w-full">
+              <p className="text-gray-500">
+                The service is not available.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="
+          flex gap-5 overflow-x-auto pb-4
+          snap-x snap-mandatory
+          scrollbar-hide
+          lg:grid lg:grid-cols-4 xl:grid-cols-6 lg:overflow-visible
+        "
+            >
+              {filteredServices.map((s, i) => (
+                <motion.div
+                  key={s._id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  whileHover={{ y: -6 }}
+                  className="
+              group cursor-pointer
+              min-w-[160px] sm:min-w-[180px] lg:min-w-0
+              snap-start
             "
-          >
-            {services.map((s, i) => (
-              <motion.div
-                key={s.service_name}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                whileHover={{ y: -6 }}
-                className="
-                  group cursor-pointer
-                  min-w-[160px] sm:min-w-[180px] lg:min-w-0
-                  snap-start
-                "
-                onClick={() => navigate(`/services/${s._id}/machine-types`)}
-              >
-                <div className="relative h-36 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition">
-                  <img
-                    src={s.service_image?.[0] || "/placeholder.png"}
-                    alt={s.service_name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                  />
+                  onClick={() => navigate(`/services/${s._id}/machine-types`)}
+                >
+                  <div className="relative h-36 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition">
+                    <img
+                      src={s.service_image?.[0] || "/placeholder.png"}
+                      alt={s.service_name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                    />
 
-                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition" />
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition" />
 
-                  <p className="absolute bottom-3 left-3 right-3 text-white text-sm font-semibold truncate">
-                    {s.service_name}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                    <p className="absolute bottom-3 left-3 right-3 text-white text-sm font-semibold truncate">
+                      {s.service_name}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

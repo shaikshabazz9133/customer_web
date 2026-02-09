@@ -18,7 +18,7 @@ export default function ServiceTypeDetails() {
         `https://dev.backend.fixonn.in/api/v1/service/type/get-servicetype-by-service-and-machineType/${serviceId}/${machineTypeId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       )
       .then((res) => setData(res.data.data?.[0] || null))
       .catch((err) => console.error(err))
@@ -45,7 +45,7 @@ export default function ServiceTypeDetails() {
         {/* Header */}
         <div className="text-center mb-10 md:mb-14">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-[#c62828]">
-            Select Service
+            Select Service 1
           </h1>
         </div>
 
@@ -87,8 +87,23 @@ export default function ServiceTypeDetails() {
                 />
               </div>
 
+              {service.service_type_description && (
+                <div
+                  className="
+      text-sm md:text-base
+      text-slate-600
+      text-center
+      mb-4
+      leading-relaxed
+    "
+                  dangerouslySetInnerHTML={{
+                    __html: service.service_type_description,
+                  }}
+                />
+              )}
+
               {/* Tags */}
-              <div className="flex flex-wrap gap-1.5 justify-center mb-4">
+              {/* <div className="flex flex-wrap gap-1.5 justify-center mb-4">
                 {["Repair", "ASA", "UIA"].map((tag) => (
                   <span
                     key={tag}
@@ -97,7 +112,7 @@ export default function ServiceTypeDetails() {
                     {tag}
                   </span>
                 ))}
-              </div>
+              </div> */}
 
               {/* Title */}
               <h3 className="text-lg md:text-xl font-extrabold text-slate-900 text-center mb-3 group-hover:text-[#c62828] transition-colors">
@@ -106,14 +121,13 @@ export default function ServiceTypeDetails() {
 
               {/* Price Badge */}
               <div className="relative bg-[#c62828] text-white px-6 py-3 rounded-2xl shadow-xl mb-5 mx-auto w-fit border border-white/30 hover:shadow-[#c62828]/40 transition-all duration-300 group-hover:scale-[1.02]">
-                <div className="flex items-baseline">
-                  <span className="text-xl md:text-2xl font-black tracking-tight">
-                    ₹
-                  </span>
-                  <span className="text-2xl md:text-3xl font-black ml-1 tracking-tight">
+                <div className="flex items-baseline justify-center">
+                  <span className="text-lg md:text-xl font-semibold">₹</span>
+                  <span className="text-xl md:text-2xl font-semibold ml-1 tracking-tight">
                     {service.service_charge}
                   </span>
                 </div>
+
                 <p className="text-xs md:text-sm uppercase tracking-wider font-semibold mt-1 opacity-90 text-center">
                   Service Charge
                 </p>

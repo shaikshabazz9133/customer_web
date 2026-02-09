@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function OrderDetails() {
-  const { id } = useParams(); // order_id
+  const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -26,6 +30,32 @@ export default function OrderDetails() {
       .catch((err) => console.error("Order details error", err))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleCancelOrder = async () => {
+    const token = sessionStorage.getItem("token");
+    if (!token) return toast.error("Please login again");
+
+    try {
+      setCancelling(true);
+
+      const res = await axios.patch(
+        `https://dev.backend.fixonn.in/api/v1/order/update/status/${order.order_id}`,
+        { order_status: "canceled" },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+
+      toast.success(res?.message || "Order cancelled successfully");
+
+      setShowCancelModal(false);
+      navigate("/orders");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to cancel order");
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   /* ---------------- LOADING SKELETON ---------------- */
   if (loading) {
@@ -86,7 +116,7 @@ export default function OrderDetails() {
         <div className="flex justify-between">
           <p className="font-medium">Visiting Charges</p>
           <span className="bg-[#c62828]/10 text-[#c62828] font-semibold px-3 py-1 rounded-full">
-            ₹300
+            ₹0
           </span>
         </div>
 
@@ -118,9 +148,43 @@ export default function OrderDetails() {
             View Invoice
           </button>
 
-          <button className="flex-1 bg-[#c62828] text-white py-3 rounded-full font-medium hover:bg-[#b71c1c] transition">
+          <button
+            onClick={() => setShowCancelModal(true)}
+            className="flex-1 bg-[#c62828] text-white py-3 rounded-full font-medium hover:bg-[#b71c1c] transition"
+          >
             Cancel Order
           </button>
+        </div>
+      )}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="text-lg font-bold text-slate-900 mb-2">
+              Cancel Order?
+            </h3>
+
+            <p className="text-slate-600 text-sm mb-6">
+              Are you sure you want to cancel this order
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-medium hover:bg-slate-100 transition"
+              >
+                No
+              </button>
+
+              <button
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                className="flex-1 py-2.5 rounded-xl bg-[#c62828] text-white font-medium hover:bg-[#b71c1c] transition disabled:opacity-60"
+              >
+                {cancelling ? "Cancelling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>

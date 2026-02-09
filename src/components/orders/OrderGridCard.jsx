@@ -54,7 +54,7 @@ export default function OrderGridCard({ order }) {
             className="
               inline-flex items-center gap-1
               px-3 py-1 text-xs font-semibold
-              rounded-full bg-[#c62828]/10 text-[#c62828]
+              rounded-full bg-[#2897c6]/10 text-[#2897c6]
               capitalize
             "
           >
@@ -63,8 +63,11 @@ export default function OrderGridCard({ order }) {
 
           {/* AMOUNT */}
           <div className="text-right">
-            <p className="text-xs text-slate-400">Service Charge</p>
-            <p className="text-lg font-bold text-[#c62828]">
+            {/* <p className="text-xs text-slate-400">Service Charge</p> */}
+            <p
+              className="inline-flex items-center gap-1
+              px-3 py-1 text-xl font-bold rounded-full bg-[#c62828]/10 text-[#c62828]"
+            >
               ₹{order.service_charge}
             </p>
           </div>

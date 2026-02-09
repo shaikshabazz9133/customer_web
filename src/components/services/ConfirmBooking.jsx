@@ -36,7 +36,6 @@ export default function ConfirmBooking() {
       })
       .then((res) => {
         const d = res.data.data[0];
-        console.log("res", res.data);
         setForm((prev) => ({
           ...prev,
           name: d.username || "",

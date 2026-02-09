@@ -1,4 +1,4 @@
-export default function HeroSearch() {
+export default function HeroSearch({ searchQuery = "", onSearchChange }) {
   return (
     <section className="bg-white">
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
@@ -14,6 +14,8 @@ export default function HeroSearch() {
             <input
               type="text"
               placeholder="Search for services"
+              value={searchQuery}
+              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
               className="w-full rounded-full border px-5 py-3 shadow-sm focus:ring-2 focus:ring-red-400"
             />
           </div>

@@ -58,21 +58,32 @@ export default function BookingFlow() {
     reason: "",
   });
 
+  const token = sessionStorage.getItem("token");
+  const isLoggedIn = !!token;
+
   // 🚀 Time validation logic
   const getCurrentTimeIndex = () => {
+    const today = new Date().toISOString().slice(0, 10);
+
+    // ✅ If selected date is NOT today → enable all slots
+    if (date !== today) return -1;
+
     const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const MIN_GAP = 60; // 1 hour buffer
 
-    if (currentHour < 9) return -1;
-    if (currentHour === 9 && currentMinute < 30) return 0;
+    const index = TIMES.findIndex((t) => {
+      const [, hourStr, period] = t.match(/(\d+):00 (AM|PM)/);
+      let hour = parseInt(hourStr, 10);
 
-    const timeIndex = TIMES.findIndex((t) => {
-      const [hour, period] = t.match(/(\d+):00 (AM|PM)/).slice(1);
-      const h = parseInt(hour) + (period === "PM" && hour !== "12" ? 12 : 0);
-      return h === currentHour;
+      if (period === "PM" && hour !== 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
+
+      const slotMinutes = hour * 60;
+      return slotMinutes - currentMinutes >= MIN_GAP;
     });
-    return timeIndex;
+
+    return index === -1 ? TIMES.length : index - 1;
   };
 
   const isTimeDisabled = (timeSlot, currentTimeIndex) => {
@@ -160,9 +171,12 @@ export default function BookingFlow() {
 
   useEffect(() => {
     if (hasFetchedRef.current || activeStep !== 1) return;
+    
+    const token = sessionStorage.getItem("token");
+    if (!token) return; // 🔒 NO token → NO API call
+
     hasFetchedRef.current = true;
 
-    const token = sessionStorage.getItem("token");
     axios
       .get("https://dev.backend.fixonn.in/api/v1/customer/details", {
         headers: { Authorization: `Bearer ${token}` },
@@ -257,7 +271,7 @@ export default function BookingFlow() {
       await axios.post(
         "https://dev.backend.fixonn.in/api/v1/order/create",
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       toast.success("Booking confirmed successfully!");
@@ -346,6 +360,7 @@ export default function BookingFlow() {
                   <input
                     type="date"
                     value={date}
+                    min={new Date().toISOString().slice(0, 10)} // 🔒 Disable past dates
                     onChange={(e) => setDate(e.target.value)}
                     className="w-full px-5 py-4 rounded-xl lg:rounded-2xl border-2 border-slate-200 focus:ring-3 focus:ring-[#C62828]/20 focus:border-[#C62828] bg-white shadow-lg text-lg font-medium h-14 lg:h-16 transition-all"
                   />
@@ -369,8 +384,8 @@ export default function BookingFlow() {
                             disabled
                               ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
                               : time === t
-                              ? "bg-[#C62828] text-white border-[#C62828] shadow-[#C62828]/25"
-                              : "bg-white/90 text-slate-700 border-slate-200 hover:border-[#C62828]/40 hover:bg-white hover:shadow-lg"
+                                ? "bg-[#C62828] text-white border-[#C62828] shadow-[#C62828]/25"
+                                : "bg-white/90 text-slate-700 border-slate-200 hover:border-[#C62828]/40 hover:bg-white hover:shadow-lg"
                           }`}
                         >
                           {t}
@@ -442,167 +457,231 @@ export default function BookingFlow() {
             transition={{ duration: 0.4, ease: "easeInOut" }}
           >
             <div className="p-6 lg:p-9 bg-gradient-to-b from-slate-50/80 to-white">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12">
-                {/* LEFT: Form */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="space-y-6 lg:space-y-7"
-                >
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
-                    <Field
-                      icon={<User size={18} />}
-                      label="Full Name *"
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      icon={<Phone size={18} />}
-                      label="Mobile *"
-                      name="mobile"
-                      value={form.mobile}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  {/* Address field - PORTAL Z-INDEX */}
-                  <div
-                    style={{
-                      //
-                      zIndex: 999999999,
-                      // pointerEvents: "none",
-                    }}
+              {isLoggedIn ? (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-12">
+                  {/* LEFT: Form */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="space-y-6 lg:space-y-7"
                   >
-                    <label className="block text-sm lg:text-base font-semibold text-slate-800 mb-2.5">
-                      Full Address *
-                    </label>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+                      <Field
+                        icon={<User size={18} />}
+                        label="Full Name"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
+                      />
 
-                    <AddressAutocomplete
-                      value={form.address}
-                      onChange={(v) =>
-                        setForm((prev) => ({ ...prev, address: v }))
-                      }
-                      onSelect={(place) => {
-                        let pincode = "";
+                      <Field
+                        icon={<Phone size={18} />}
+                        label="Mobile"
+                        name="mobile"
+                        value={form.mobile}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
 
-                        place.address_components?.forEach((c) => {
-                          if (c.types.includes("postal_code")) {
-                            pincode = c.long_name;
-                          }
-                        });
-
-                        latRef.current = place.geometry.location
-                          .lat()
-                          .toString();
-                        lngRef.current = place.geometry.location
-                          .lng()
-                          .toString();
-
-                        setForm((prev) => ({
-                          ...prev,
-                          address: place.formatted_address,
-                          pincode,
-                        }));
+                    {/* Address field - PORTAL Z-INDEX */}
+                    <div
+                      style={{
+                        //
+                        zIndex: 999999999,
+                        // pointerEvents: "none",
                       }}
-                    />
-                  </div>
+                    >
+                      <label className="block text-sm lg:text-base font-semibold text-slate-800 mb-2.5">
+                        Full Address <span className="text-red-500">*</span>
+                      </label>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
-                    <Field
-                      label="Door No"
-                      name="doorNo"
-                      value={form.doorNo}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Street"
-                      name="street"
-                      value={form.street}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Landmark"
-                      name="landmark"
-                      value={form.landmark}
-                      onChange={handleChange}
-                    />
-                  </div>
+                      <AddressAutocomplete
+                        value={form.address}
+                        onChange={(v) =>
+                          setForm((prev) => ({ ...prev, address: v }))
+                        }
+                        onSelect={(place) => {
+                          let pincode = "";
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <Field
-                      label="Pin Code *"
-                      name="pincode"
-                      value={form.pincode}
-                      onChange={handleChange}
-                    />
-                    <Field
-                      label="Issue (Optional)"
-                      name="reason"
-                      value={form.reason}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </motion.div>
+                          place.address_components?.forEach((c) => {
+                            if (c.types.includes("postal_code")) {
+                              pincode = c.long_name;
+                            }
+                          });
 
-                {/* RIGHT: Summary */}
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="lg:sticky lg:top-24 bg-gradient-to-br from-white/95 to-slate-50/70 rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-slate-100/60 shadow-xl backdrop-blur-xl"
-                  style={{ zIndex: 1 }}
-                >
-                  <div className="flex items-center gap-2 mb-5 pb-4 border-b border-slate-200/50">
-                    <div className="w-2.5 h-2.5 bg-[#C62828]/80 rounded-full shadow-md" />
-                    <h3 className="text-lg lg:text-xl font-semibold text-slate-900">
-                      Booking Summary
-                    </h3>
-                  </div>
+                          latRef.current = place.geometry.location
+                            .lat()
+                            .toString();
+                          lngRef.current = place.geometry.location
+                            .lng()
+                            .toString();
 
-                  <div className="space-y-3 text-slate-700">
-                    <div className="flex justify-between py-1.5">
-                      <span className="font-medium text-sm">Service</span>
-                      <span className="font-semibold text-slate-900 text-base lg:text-lg">
-                        {service.service_type_name}
-                      </span>
+                          setForm((prev) => ({
+                            ...prev,
+                            address: place.formatted_address,
+                            pincode,
+                          }));
+                        }}
+                      />
                     </div>
-                    <div className="flex justify-between py-1.5">
-                      <span className="font-medium text-sm">Date</span>
-                      <span className="font-semibold text-slate-900 text-base lg:text-lg">
-                        {date}
-                      </span>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                      <Field
+                        label="Door No"
+                        name="doorNo"
+                        value={form.doorNo}
+                        onChange={handleChange}
+                      />
+                      <Field
+                        label="Street"
+                        name="street"
+                        value={form.street}
+                        onChange={handleChange}
+                      />
+                      <Field
+                        label="Landmark"
+                        name="landmark"
+                        value={form.landmark}
+                        onChange={handleChange}
+                      />
                     </div>
-                    <div className="flex justify-between py-1.5">
-                      <span className="font-medium text-sm">Time</span>
-                      <span className="font-semibold text-slate-900 text-base lg:text-lg">
-                        {time || "--:--"}
-                      </span>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <Field
+                        label="Pin Code"
+                        name="pincode"
+                        minLength={7}
+                        maxLength={7}
+                        value={form.pincode}
+                        onChange={handleChange}
+                        required
+                      />
+
+                      <Field
+                        label="Issue (Optional)"
+                        name="reason"
+                        value={form.reason}
+                        onChange={handleChange}
+                      />
                     </div>
-                    <div className="pt-5 mt-4 border-t border-slate-200/50">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-slate-600">
-                          Service Charge
-                        </span>
-                        <span className="text-xl lg:text-2xl font-extrabold text-[#C62828] leading-none">
-                          ₹{service.service_charge}
+                  </motion.div>
+
+                  {/* RIGHT: Summary */}
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="lg:sticky lg:top-24 bg-gradient-to-br from-white/95 to-slate-50/70 rounded-2xl lg:rounded-3xl p-6 lg:p-8 border border-slate-100/60 shadow-xl backdrop-blur-xl"
+                    style={{ zIndex: 1 }}
+                  >
+                    <div className="flex items-center gap-2 mb-5 pb-4 border-b border-slate-200/50">
+                      <div className="w-2.5 h-2.5 bg-[#C62828]/80 rounded-full shadow-md" />
+                      <h3 className="text-lg lg:text-xl font-semibold text-slate-900">
+                        Booking Summary
+                      </h3>
+                    </div>
+
+                    <div className="space-y-3 text-slate-700">
+                      <div className="flex justify-between py-1.5">
+                        <span className="font-medium text-sm">Service</span>
+                        <span className="font-semibold text-slate-900 text-base lg:text-lg">
+                          {service.service_type_name}
                         </span>
                       </div>
+                      <div className="flex justify-between py-1.5">
+                        <span className="font-medium text-sm">Date</span>
+                        <span className="font-semibold text-slate-900 text-base lg:text-lg">
+                          {date}
+                        </span>
+                      </div>
+                      <div className="flex justify-between py-1.5">
+                        <span className="font-medium text-sm">Time</span>
+                        <span className="font-semibold text-slate-900 text-base lg:text-lg">
+                          {time || "--:--"}
+                        </span>
+                      </div>
+                      <div className="pt-5 mt-4 border-t border-slate-200/50">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-slate-600">
+                            Service Charge
+                          </span>
+                          <span className="text-xl lg:text-2xl font-extrabold text-[#C62828] leading-none">
+                            ₹{service.service_charge}
+                          </span>
+                        </div>
+                      </div>
                     </div>
+
+                    <motion.button
+                      onClick={handleSubmit}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={isConfirmDisabled}
+                      className="w-full mt-7 bg-gradient-to-r from-[#C62828] to-[#D32F2F] hover:from-[#B71C1C] text-white py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-semibold text-sm lg:text-base shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:shadow-md disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 h-13 lg:h-14"
+                    >
+                      {saving ? "Confirming..." : "✅ Confirm Booking"}
+                      <ChevronDown size={18} className="-rotate-90" />
+                    </motion.button>
+                  </motion.div>
+                </div>
+              ) : (
+                /* 🔐 LOGIN REQUIRED UI */
+                <div className="flex flex-col items-center justify-center py-12 lg:py-16 text-center">
+                  <div className="w-16 h-16 rounded-full bg-[#C62828]/10 flex items-center justify-center mb-5">
+                    <User className="text-[#C62828]" size={28} />
                   </div>
 
+                  <h3 className="text-xl lg:text-2xl font-bold text-slate-900 mb-2">
+                    Login Required
+                  </h3>
+
+                  <p className="text-slate-600 max-w-md mb-6">
+                    Please sign in to continue with your booking and provide
+                    customer details.
+                  </p>
+
                   <motion.button
-                    onClick={handleSubmit}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    disabled={isConfirmDisabled}
-                    className="w-full mt-7 bg-gradient-to-r from-[#C62828] to-[#D32F2F] hover:from-[#B71C1C] text-white py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-semibold text-sm lg:text-base shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:shadow-md disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 h-13 lg:h-14"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      const draft = {
+                        activeStep,
+                        date,
+                        time,
+                        form,
+                        state,
+                      };
+
+                      sessionStorage.setItem(
+                        BOOKING_DRAFT_KEY,
+                        JSON.stringify(draft),
+                      );
+
+                      navigate("/signin", {
+                        state: {
+                          redirectTo: "/booking-flow",
+                          bookingState: state,
+                        },
+                      });
+                    }}
+                    className="
+          bg-gradient-to-r from-[#C62828] to-[#D32F2F]
+          hover:from-[#B71C1C]
+          text-white
+          px-8 py-4
+          rounded-xl lg:rounded-2xl
+          font-semibold
+          shadow-xl
+          hover:shadow-2xl
+          transition-all
+        "
                   >
-                    {saving ? "Confirming..." : "✅ Confirm Booking"}
-                    <ChevronDown size={18} className="-rotate-90" />
+                    🔐 Login to Continue
                   </motion.button>
-                </motion.div>
-              </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -611,23 +690,33 @@ export default function BookingFlow() {
   );
 }
 
-function Field({ icon, label, inputRef, ...props }) {
+function Field({ icon, label, inputRef, required = false, ...props }) {
   return (
     <div>
       <label className="block text-sm lg:text-base font-semibold text-slate-800 mb-2.5">
         {label}
+        {required && <span className="text-[#C62828] ml-1 font-bold">*</span>}
       </label>
+
       <div className="relative" style={{ zIndex: 1000 }}>
         {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+          <div
+            className={`absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none ${
+              required ? "text-[#C62828]" : "text-slate-400"
+            }`}
+          >
             {icon}
           </div>
         )}
+
         <input
           ref={inputRef}
           {...props}
-          className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          style={{ zIndex: 1001 }} // 🔥 Ensure input > icon
+          className={`w-full ${
+            icon ? "pl-12" : "pl-4"
+          } pr-4 py-4 border border-gray-300 rounded-xl
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+          style={{ zIndex: 1001 }}
         />
       </div>
     </div>

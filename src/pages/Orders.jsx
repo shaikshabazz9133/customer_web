@@ -19,16 +19,20 @@ export default function Orders() {
       })
       .then((res) => {
         // ✅ show ONLY ordered status
-        const orderedOnly = (res.data.records || []).filter(
-          (o) => o.order_status === "ordered"
-        );
+        const orderedOnly = (res.data.records || [])
+          .filter((o) => o.order_status === "ordered")
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt || b.created_date) -
+              new Date(a.createdAt || a.created_date),
+          );
+
         setOrders(orderedOnly);
       })
       .catch((err) => console.error("Order list error", err))
       .finally(() => setLoading(false));
   }, []);
 
-  console.log("Orders data", orders.length);
   const skeletonCount = orders.length || 4;
 
   return (
